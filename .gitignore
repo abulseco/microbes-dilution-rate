@@ -56,3 +56,9 @@ rsconnect/
 
 # rds files
 .rds
+
+# excel files
+.xlsx
+
+# text files
+.txt
