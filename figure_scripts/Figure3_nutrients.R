@@ -1,27 +1,17 @@
 # Figure 3 in Meg/Ashley SES Manuscript
 # Environmental parameters from chemostats
 
-# UPLOAD DATA----
-path = "/Users/abulseco/Dropbox/MBL_Postdoc/Experiments/2018_Pilot_SESProject/Microbial_Data/Downloads_from_VAMPS/JJV_MEG_Bv4v5" 
-setwd("~/Dropbox/MBL_Postdoc/Experiments/2018_Pilot_SESProject/Microbial_Data/Downloads_from_VAMPS/JJV_MEG_Bv4v5")
-
+# SETUP ENVIRONMENT----
 # Load necessary libraries
-library("ggplot2")
-library(patchwork)
-library(rstatix)
-library(ggpubr)
-library(lme4)
-library(emmeans)
-library(sjstats)
-library(lmerTest)
-library(MuMIn)
+library("ggplot2"); library(patchwork); library(lme4); library(emmeans)
+library(sjstats); library(lmerTest); library(MuMIn)
 
 pretty.theme <- function(){
   theme_bw()+
     theme(axis.text.x=element_text(size=14, color = "black", angle = 0),
           axis.text.y=element_text(size=14, color = "black"),
-          axis.title.x=element_text(size=20, color = "black"),             
-          axis.title.y=element_text(size=20, color = "black"),             
+          axis.title.x=element_text(size=14, color = "black"),             
+          axis.title.y=element_text(size=14, color = "black"),             
           panel.grid.major.x=element_blank(),                                          
           panel.grid.minor.x=element_blank(),
           panel.grid.minor.y=element_blank(),
@@ -61,142 +51,59 @@ theme.exp1 <- function(){
           axis.title = element_blank())
 }
 
-nuts_data <- read.csv("new_nutrients.csv", header = TRUE)
+## Import data----
+nuts_data <- read.csv("input_files/new_nutrients.csv", header = TRUE)
 
+# Plots----
+## nitrate----
 nitrate_plot <- ggplot(nuts_data, aes(x = days_after, y = nitrate_conc)) +
-  annotate("rect", fill = "#2B5B6C", alpha = 0.4, 
-           xmin = 0, xmax = 15.71,
-           ymin = -Inf, ymax = Inf) +
-  annotate("rect", fill = "#E34F33", alpha = 0.4, 
-           xmin = 15.71, xmax = 20.79,
-           ymin = -Inf, ymax = Inf) +
-  annotate("rect", fill = "#FFC87E", alpha = 0.4, 
-           xmin = 20.79, xmax = 25,
-           ymin = -Inf, ymax = Inf) +
-  geom_point(aes(shape = chemostat_ID, color = chemostat_ID), size = 2) +
-  geom_line(aes(color = chemostat_ID, linetype = chemostat_ID)) +
-  labs(y = expression (""), x = "Days After Start") +
-  scale_color_manual(values = c("black", "black")) +
-  pretty.theme()
-nitrate_plot 
-
-phosphate_plot <- ggplot(nuts_data, aes(x = days_after, y = phos_conc)) +
-  annotate("rect", fill = "#2B5B6C", alpha = 0.4, 
-           xmin = 0, xmax = 15.71,
-           ymin = -Inf, ymax = Inf) +
-  annotate("rect", fill = "#E34F33", alpha = 0.4, 
-           xmin = 15.71, xmax = 20.79,
-           ymin = -Inf, ymax = Inf) +
-  annotate("rect", fill = "#FFC87E", alpha = 0.4, 
-           xmin = 20.79, xmax = 25,
-           ymin = -Inf, ymax = Inf) +
-  geom_point(aes(shape = chemostat_ID, color = chemostat_ID), size = 2) +
-  geom_line(aes(color = chemostat_ID, linetype = chemostat_ID)) +
-  labs(y = expression (""), x = "Days After Start") +
-  scale_color_manual(values = c("black", "black")) +
-  pretty.theme()
-phosphate_plot
-
-ammonium_plot <- ggplot(nuts_data, aes(x = days_after, y = ammonium_con)) +
-  annotate("rect", fill = "#2B5B6C", alpha = 0.2, 
-           xmin = 0, xmax = 15.71,
-           ymin = -Inf, ymax = Inf) +
-  annotate("rect", fill = "#E34F33", alpha = 0.2, 
-           xmin = 15.71, xmax = 20.79,
-           ymin = -Inf, ymax = Inf) +
-  annotate("rect", fill = "#FFC87E", alpha = 0.2, 
-           xmin = 20.79, xmax = 25,
-           ymin = -Inf, ymax = Inf) +
-  geom_point(aes(shape = chemostat_ID, color = chemostat_ID), size = 2) +
-  geom_line(aes(color = chemostat_ID, linetype = chemostat_ID)) +
-  labs(y = expression (""), x = "Days After Start") +
-  scale_color_manual(values = c("black", "black")) +
-  pretty.theme() 
-ammonium_plot
-
-DOC_plot <- ggplot(nuts_data, aes(x = days_after, y = doc_conc_mmol)) +
-  annotate("rect", fill = "#2B5B6C", alpha = 0.4, 
-           xmin = 0, xmax = 15.71,
-           ymin = -Inf, ymax = Inf) +
-  annotate("rect", fill = "#E34F33", alpha = 0.4, 
-           xmin = 15.71, xmax = 20.79,
-           ymin = -Inf, ymax = Inf) +
-  annotate("rect", fill = "#FFC87E", alpha = 0.4, 
-           xmin = 20.79, xmax = 25,
-           ymin = -Inf, ymax = Inf) +
-  geom_point(aes(shape = chemostat_ID, color = chemostat_ID), size = 2) +
-  geom_line(aes(color = chemostat_ID, linetype = chemostat_ID)) +
-  labs(y = expression (""), x = "Days After Start") +
-  scale_color_manual(values = c("black", "black")) +
-  pretty.theme() 
-DOC_plot
-
-# Version of plot with less color/background----
-nitrate_plot <- ggplot(nuts_data, aes(x = days_after, y = nitrate_conc)) +
-  geom_point(aes(shape = chemostat_ID, color = dilution_rate), size = 3) +
+  geom_point(aes(shape = chemostat_ID, color = dilution_rate), size = 2) +
   geom_line(aes(color = dilution_rate, linetype = chemostat_ID)) +
   geom_vline(xintercept = c(15.71,20.79), color = "black", linetype = "dashed") +
   scale_color_manual(values = c("#2B5B6C", "#E34F33","#FFC87E")) +
-  pretty.theme.noaxes() +
+  pretty.theme() +
   labs (x = NULL, y = NULL, shape = "Chemostat ID", color = "Dilution Rate", linetype = NULL) +
-  theme(axis.text.x = element_blank())
-nitrate_plot 
-
-nitrate_plot <- ggplot(
-  nuts_data %>% arrange(chemostat_ID, days_after),
-  aes(x = days_after, y = nitrate_conc)) +
-  # points: show dilution rate
-  # line: one continuous line per chemostat
-  geom_line(aes(linetype = chemostat_ID, group = chemostat_ID),
-            color = "grey25", linewidth = 0.7) +
-  geom_point(aes(shape = chemostat_ID, color = dilution_rate), size = 3) +
-  geom_vline(xintercept = c(15.71, 20.79), color = "black", linetype = "dashed") +
-  scale_color_manual(values = c("#2B5B6C", "#E34F33", "#FFC87E")) +
-  pretty.theme.noaxes() +
-  labs(x = NULL, y = NULL, shape = "Chemostat ID",
-       color = "Dilution Rate", linetype = NULL) +
   theme(axis.text.x = element_blank())
 nitrate_plot
 
+## ammonium----
 ammonium_plot <- ggplot(nuts_data, aes(x = days_after, y = ammonium_con)) +
-  geom_point(aes(shape = chemostat_ID, color = dilution_rate), size = 3) +
+  geom_point(aes(shape = chemostat_ID, color = dilution_rate), size = 2) +
   geom_line(aes(color = dilution_rate, linetype = chemostat_ID)) +
   geom_vline(xintercept = c(15.71,20.79), color = "black", linetype = "dashed") +
-  labs(y = expression (""), x = "Days After Start") +
   scale_color_manual(values = c("#2B5B6C", "#E34F33","#FFC87E")) +
   pretty.theme() +
   labs (x = NULL, y = NULL, shape = "Chemostat ID", color = "Dilution Rate", linetype = NULL) +
-  theme(axis.title.x = element_blank())
+  theme(axis.text.x = element_blank())
 ammonium_plot
 
+## phosphate----
 phosphate_plot <- ggplot(nuts_data, aes(x = days_after, y = phos_conc)) +
-  geom_point(aes(shape = chemostat_ID, color = dilution_rate), size = 3) +
+  geom_point(aes(shape = chemostat_ID, color = dilution_rate), size = 2) +
   geom_line(aes(color = dilution_rate, linetype = chemostat_ID)) +
   geom_vline(xintercept = c(15.71,20.79), color = "black", linetype = "dashed") +
-  labs(y = expression (""), x = "Days After Start") +
   scale_color_manual(values = c("#2B5B6C", "#E34F33","#FFC87E")) +
   pretty.theme() +
   labs (x = NULL, y = NULL, shape = "Chemostat ID", color = "Dilution Rate", linetype = NULL) +
-  theme(axis.title.x = element_blank())
+  theme(axis.text.x = element_blank())
 phosphate_plot
 
+## DOC----
 DOC_plot <- ggplot(nuts_data, aes(x = days_after, y = doc_conc_mmol)) +
-  geom_point(aes(shape = chemostat_ID, color = dilution_rate), size = 3) +
+  geom_point(aes(shape = chemostat_ID, color = dilution_rate), size = 2) +
   geom_line(aes(color = dilution_rate, linetype = chemostat_ID)) +
   geom_vline(xintercept = c(15.71,20.79), color = "black", linetype = "dashed") +
-  labs(y = expression (""), x = "Days After Start") +
   scale_color_manual(values = c("#2B5B6C", "#E34F33","#FFC87E")) +
   pretty.theme() +
-  labs (x = "Days After Start", y = NULL, shape = "Chemostat ID", color = "Dilution Rate", linetype = NULL)
-  DOC_plot
+  labs (x = "Days after start", y = NULL, shape = "Chemostat ID", color = "Dilution Rate", linetype = NULL) 
+DOC_plot
 
-# Combine plot into one column
+## Combine plots----
 fig3 <- (nitrate_plot / ammonium_plot / phosphate_plot / DOC_plot) +
   plot_layout(guides = "collect") &
-  theme(legend.position = "right")
+  theme(legend.position = "right",
+        legend.justification = "center")
 fig3
-
-##
 
 # Statistics----
 test <- anova_test(nuts_data, dv = "nitrate_conc", wid = "chemostat_ID", between = "dilution_rate", within = "days_after")
