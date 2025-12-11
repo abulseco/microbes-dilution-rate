@@ -1,4 +1,5 @@
-# Figure 2 in Meg/Ashley SES Manuscript
+# Figure 2 - ARCHIVED
+# Use Figure2_environ-nutrients-combined
 # Environmental parameters from chemostats (pH, CO2, O2, Dissolved O2)
 
 # SET UP ENVIRONMENT----

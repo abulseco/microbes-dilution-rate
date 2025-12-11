@@ -1,4 +1,5 @@
-# Figure 3 in Meg/Ashley SES Manuscript
+# Figure 3 - ARCHIVED
+# Use Figure2_environ-nutrients-combined
 # Environmental parameters from chemostats
 
 # SETUP ENVIRONMENT----
