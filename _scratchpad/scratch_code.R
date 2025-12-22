@@ -1,5 +1,7 @@
 # Scratchpad used for prelim code
 
+library(dplyr); library(emmeans); library(multcompView)
+
 # figure combo----
 # combine fig2 & 3
 # test to see if we can combine into one plot cleanly
@@ -415,4 +417,74 @@ r.squaredGLMM(doc_model_GLMM1)
 effectsize::eta_squared(doc_model_GLMM1, partial = TRUE)
 emmeans(doc_model_GLMM1, pairwise~dilution_rate)
 
-## old fig 3----
+# Playing with stats----
+## alpha diversity----
+# read in the data
+alpha_div_data <- read.csv("input_files/alpha_diversity_rare_data.csv", header = TRUE)
+
+alpha_obs_model_GLMM1 <- lmer(Shannon ~ dilution_rate + (1 | chemostat_ID), data = alpha_div_data, REML = FALSE)
+alpha_obs_model_GLMM2 <- lmer(Shannon ~ dilution_rate * days_after + (1 | chemostat_ID), data = alpha_div_data, REML = FALSE)
+alpha_obs_model_GLMM3 <- lmer(Shannon ~ dilution_rate + days_after + (1 | chemostat_ID), data = alpha_div_data, REML = FALSE)
+alpha_obs_model_null1 <- lmer(Shannon ~ 1 + (1 | chemostat_ID), data = alpha_div_data, REML = FALSE)
+
+AICc(alpha_obs_model_GLMM1, alpha_obs_model_GLMM2, alpha_obs_model_GLMM3, alpha_obs_model_null1)
+summary(alpha_obs_model_GLMM1)
+
+# create a "day within phase" column that restarts with each dilution rate
+alpha_div_data <- alpha_div_data %>%
+  arrange(chemostat_ID, days_after)
+
+alpha_div_data <- alpha_div_data %>%
+  group_by(chemostat_ID, dilution_rate) %>%
+  mutate(
+    day_within_phase = days_after - min(days_after)
+  ) %>%
+  ungroup()
+
+alpha_div_data %>%
+  select(SampleID, chemostat_ID, dilution_rate, days_after, day_within_phase) %>%
+  arrange(chemostat_ID, days_after)
+
+alpha_obs_model_GLMM1 <- lmer(Shannon ~ dilution_rate + (1 | chemostat_ID), data = alpha_div_data, REML = FALSE)
+alpha_obs_model_GLMM2 <- lmer(Shannon ~ dilution_rate * day_within_phase + (1 | chemostat_ID), data = alpha_div_data, REML = FALSE)
+alpha_obs_model_GLMM3 <- lmer(Shannon ~ dilution_rate + day_within_phase + (1 | chemostat_ID), data = alpha_div_data, REML = FALSE)
+alpha_obs_model_null1 <- lmer(Shannon ~ 1 + (1 | chemostat_ID), data = alpha_div_data, REML = FALSE)
+
+AICc(alpha_obs_model_GLMM1, alpha_obs_model_GLMM2, alpha_obs_model_GLMM3, alpha_obs_model_null1)
+summary(alpha_obs_model_GLMM1)
+
+# Now to get posthoc information
+emm_dilution <- emmeans(alpha_obs_model_GLMM1, ~ dilution_rate)
+emm_dilution
+pairs(emm_dilution, adjust = "tukey")
+confint(pairs(emm_dilution, adjust = "tukey"))
+
+# alpha_obs_model_GLMM1 <- lmer(Shannon ~ dilution_rate * days_after + (1 | chemostat_ID), data = alpha_diversity)
+# alpha_obs_model_GLMM2 <- lmer(Shannon ~ dilution_rate + days_after + (1 | chemostat_ID), data = alpha_diversity)
+# alpha_obs_model_GLMM3 <- lmer(Shannon ~ days_after + (1 | chemostat_ID), data = alpha_diversity)
+# alpha_obs_model_GLMM4 <- lmer(Shannon ~ dilution_rate * days_after + (days_after | chemostat_ID), data = alpha_diversity)
+# alpha_obs_model_GLMM5 <- lmer(Shannon ~ dilution_rate + days_after + (days_after | chemostat_ID), data = alpha_diversity)
+# alpha_obs_model_GLMM6 <- lmer(Shannon ~ days_after + (days_after | chemostat_ID), data = alpha_diversity)
+# alpha_obs_model_null1 <- lmer(Shannon ~ 1 + (1 | chemostat_ID), data = alpha_diversity)
+# alpha_obs_model_null2 <- lmer(Shannon ~ 1 + (days_after | chemostat_ID), data = alpha_diversity)
+# 
+# # Excluding models with singularity
+# # 5, 6, 7, 8, 10, 12, 13)
+# AICc(alpha_obs_model_GLMM1, alpha_obs_model_GLMM2, alpha_obs_model_GLMM3, 
+#      alpha_obs_model_GLMM4, alpha_obs_model_GLMM5, alpha_obs_model_GLMM6, 
+#      alpha_obs_model_null1, alpha_obs_model_null2)
+# model.sel(alpha_obs_model_GLMM1, alpha_obs_model_GLMM2, alpha_obs_model_GLMM3, 
+#           alpha_obs_model_GLMM4, alpha_obs_model_GLMM5, alpha_obs_model_GLMM6, 
+#           alpha_obs_model_null1, alpha_obs_model_null2)
+# 
+# 
+# model.sel(alpha_obs_model_GLMM1, alpha_obs_model_GLMM2, alpha_obs_model_GLMM3, alpha_obs_model_GLMM4, 
+#           alpha_obs_model_GLMM9, alpha_obs_model_GLMM11, alpha_obs_model_GLMM14, alpha_obs_model_GLMM15)
+# # Model 4 is the best fit
+# 
+# summary(alpha_obs_model_GLMM14)
+# anova(alpha_obs_model_GLMM4)
+# r.squaredGLMM(alpha_obs_model_GLMM4)      
+# effectsize::eta_squared(alpha_obs_model_GLMM4, partial = TRUE)
+# emmeans(alpha_obs_model_GLMM14, pairwise~dilution_rate | chemostat_ID)
+# 
