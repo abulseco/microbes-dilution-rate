@@ -174,5 +174,3 @@ fig4 <- (bray_plot1 | bray_plot2) /
   (alpha_boxplot_ALL | dis_boxplot_ALL) /
   (alpha_model_plot | beta_model_plot)
 fig4
-
-# STATISTICS----
