@@ -20,7 +20,7 @@ pretty.theme <- function(){
           panel.grid.minor.y=element_blank(),
           panel.grid.major.y=element_blank(),  
           plot.margin = unit(c(0.5, 0.5, 0.5, 0.5), units = , "cm"),
-          plot.title = element_text(size=20))
+          plot.title = element_text(size=14))
 }
 # Read in the data (dissolved O2 had a different output)
 monitor_var <- read.csv("input_files/monitor_param_LONG.csv", header = T)
@@ -223,4 +223,7 @@ combine_2_3
 # ## combine grey plots----
 # combine_2_3g <- fig2g / fig3g
 # combine_2_3g
+
+# STATISTICS----
+
 
