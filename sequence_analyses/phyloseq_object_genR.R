@@ -9,7 +9,6 @@
 library(phyloseq); library(data.table); library(ggplot2); library(dplyr)
 library(data.table)
 
-
 # PHYLOSEQ ANALYSIS----
 # Loading into Phyloseq----
 mat = read.table("input_files/ASVs_counts.tsv", header = TRUE, sep = "\t", row.names = 1)
@@ -34,7 +33,7 @@ phy
 
 # Explore----
 # Get to know your phyloseq object
-ntaxa(phy) # 1700, this is less than before but makes more sense I think
+ntaxa(phy) # 1702, this is less than before but makes more sense I think
 nsamples(phy) # 26
 sample_variables(phy)
 taxa_names(phy)
@@ -64,10 +63,25 @@ phy %>%
 phy #1702 taxa prior to filtering out above taxa
 phy.f # 1420 taxa remain
 
+# rarefy for when necessary
+depth <- min(sample_sums(phy.f))
+depth # 18006
+phy.f.rare <- rarefy_even_depth(phy.f, sample.size = depth, rngseed = 123, replace = FALSE)
+phy.f # 1420 taxa
+phy.f.rare # 1217 taxa (lose 203 taxa)
+summary(sample_sums(phy.f.rare))# confirming rarefying worked
+
 # Making a phyloseq object, filtered, without pond sample
+# this phyloseq object is not rarefied
 phy.f.nopond = subset_samples(phy.f, chemostat_ID !="POND")
 phy.f.nopond
 sample_names(phy.f.nopond) # Should remove pond 
+
+# Filter out pond on the rarefied dataset
+phy.f.rare.nopond = subset_samples(phy.f.rare, chemostat_ID !="POND")
+phy.f.rare.nopond
+sample_names(phy.f.rare.nopond) # Should remove pond 
+summary(sample_sums(phy.f.rare.nopond))# confirming rarefying worked
 
 # Conduct any transformations you are interested in
 per = transform_sample_counts(phy.f, function (x) x/sum(x)*100)
@@ -96,6 +110,8 @@ saveRDS(per, "phyloseq_objects/phy_taxaFilter_relAbund.rds")
 saveRDS(per_nopond, "phyloseq_objects/phy_taxaFilter_relAbund_noPond.rds")
 saveRDS(per_MC1, "phyloseq_objects/phy_taxaFilter_relAbund_noPond_MC1.rds")
 saveRDS(per_MC2, "phyloseq_objects/phy_taxaFilter_relAbund_noPond_MC2.rds")
+saveRDS(phy.f.rare, "phyloseq_objects/phy_taxaFilter_rarefied.rds")
+saveRDS(phy.f.rare.nopond, "phyloseq_objects/phy_taxaFilter_rarefied_noPond.rds")
 
 # # Filter out pond and then calculate a new relative abundance? 
 # per = transform_sample_counts(phy.f.nopond, function (x) x/sum(x)*100)
