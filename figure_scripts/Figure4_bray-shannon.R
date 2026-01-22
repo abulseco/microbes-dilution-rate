@@ -125,8 +125,8 @@ head(alpha_modeled)
 
 # This is the correct plot with the two models, A & B
 alpha_model_plot <- ggplot(alpha_modeled, aes(x =dilution_rate, y = shannon), ) +
-  geom_boxplot(aes(fill = dilution_rate), color = "black", alpha = 0.9, width = 0.5) +
-  # geom_jitter(aes(color = dilution_rate, shape = model), width = 0.2, size = 3, alpha = 0.9) +
+  geom_boxplot(aes(fill = dilution_rate), color = "black", alpha = 0.5, width = 0.5) +
+  geom_jitter(aes(color = dilution_rate, shape = model), width = 0.2, size = 3, alpha = 0.9) +
   scale_color_manual(values=c("#2B5B6C", "#E34F33", "#FFC87E")) +
   scale_fill_manual(values=c("#2B5B6C", "#E34F33", "#FFC87E")) +
   xlab("Dilution Rate") +
