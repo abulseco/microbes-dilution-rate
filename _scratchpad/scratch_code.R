@@ -1,6 +1,39 @@
 # Scratchpad used for prelim code
 
-library(dplyr); library(emmeans); library(multcompView)
+library(dplyr); library(emmeans); library(multcompView); library(ggplot2)
+
+# Updated model beta diversity plots----
+model_beta <- read.csv("input_files/model_dissimilarity_data_within_dilutions.csv", header = T)
+
+# Only sequential data
+model_beta_seq <- model_beta %>%
+  filter(sequential == "YES")
+
+# Only within the same dilution rate, but not necessarily sequential
+model_beta_within <- model_beta %>%
+  filter(within_treatment == "YES")
+head(model_beta_within)
+
+# OK, we want within the same dilution rate AND sequential 
+
+
+# This is the correct plot with the two models, A & B
+beta_model_plot <- ggplot(model_beta_seq, aes(x =dilution_rate, y = sim), ) +
+  geom_boxplot(aes(fill = dilution_rate), color = "black", alpha = 0.5, width = 0.5) +
+  geom_jitter(aes(color = dilution_rate, shape = model), width = 0.2, size = 4, alpha = 0.9) +
+  scale_color_manual(values=c("#2B5B6C", "#E34F33", "#FFC87E")) +
+  scale_fill_manual(values=c("#2B5B6C", "#E34F33", "#FFC87E")) +
+  xlab("Dilution Rate") +
+  ylab("Shannon Diversity") +
+  pretty.theme() +
+  ggtitle("E. Alpha Diversity - Modeled") +
+  # ylim(0,1) +
+  facet_wrap(.~factor(distribution, levels=c("uniform", "beta"))) +  # this changes the order of the facet wrap
+  theme(strip.background = element_blank(),
+        strip.text.x = element_text(size = 14, colour = "black"),
+        legend.position = "none")
+beta_model_plot
+
 
 # figure combo----
 # combine fig2 & 3
@@ -459,6 +492,45 @@ emm_dilution
 pairs(emm_dilution, adjust = "tukey")
 confint(pairs(emm_dilution, adjust = "tukey"))
 
+cld_dilution <- cld(
+  emm_dilution,
+  adjust = "tukey",
+  Letters = letters
+)
+
+cld_dilution
+
+# alpha_obs_model_GLMM1 <- lmer(Shannon ~ dilution_rate * days_after + (1 | chemostat_ID), data = alpha_diversity)
+# alpha_obs_model_GLMM2 <- lmer(Shannon ~ dilution_rate + days_after + (1 | chemostat_ID), data = alpha_diversity)
+# alpha_obs_model_GLMM3 <- lmer(Shannon ~ days_after + (1 | chemostat_ID), data = alpha_diversity)
+# alpha_obs_model_GLMM4 <- lmer(Shannon ~ dilution_rate * days_after + (days_after | chemostat_ID), data = alpha_diversity)
+# alpha_obs_model_GLMM5 <- lmer(Shannon ~ dilution_rate + days_after + (days_after | chemostat_ID), data = alpha_diversity)
+# alpha_obs_model_GLMM6 <- lmer(Shannon ~ days_after + (days_after | chemostat_ID), data = alpha_diversity)
+# alpha_obs_model_null1 <- lmer(Shannon ~ 1 + (1 | chemostat_ID), data = alpha_diversity)
+# alpha_obs_model_null2 <- lmer(Shannon ~ 1 + (days_after | chemostat_ID), data = alpha_diversity)
+# 
+# # Excluding models with singularity
+# # 5, 6, 7, 8, 10, 12, 13)
+# AICc(alpha_obs_model_GLMM1, alpha_obs_model_GLMM2, alpha_obs_model_GLMM3, 
+#      alpha_obs_model_GLMM4, alpha_obs_model_GLMM5, alpha_obs_model_GLMM6, 
+#      alpha_obs_model_null1, alpha_obs_model_null2)
+# model.sel(alpha_obs_model_GLMM1, alpha_obs_model_GLMM2, alpha_obs_model_GLMM3, 
+#           alpha_obs_model_GLMM4, alpha_obs_model_GLMM5, alpha_obs_model_GLMM6, 
+#           alpha_obs_model_null1, alpha_obs_model_null2)
+# 
+# 
+# model.sel(alpha_obs_model_GLMM1, alpha_obs_model_GLMM2, alpha_obs_model_GLMM3, alpha_obs_model_GLMM4, 
+#           alpha_obs_model_GLMM9, alpha_obs_model_GLMM11, alpha_obs_model_GLMM14, alpha_obs_model_GLMM15)
+# # Model 4 is the best fit
+# 
+# summary(alpha_obs_model_GLMM14)
+# anova(alpha_obs_model_GLMM4)
+# r.squaredGLMM(alpha_obs_model_GLMM4)      
+# effectsize::eta_squared(alpha_obs_model_GLMM4, partial = TRUE)
+# emmeans(alpha_obs_model_GLMM14, pairwise~dilution_rate | chemostat_ID)
+
+# BACKUP STATS FROM "Figure4_bray_shannon"
+# # First by both chemostats together
 # alpha_obs_model_GLMM1 <- lmer(Shannon ~ dilution_rate * days_after + (1 | chemostat_ID), data = alpha_diversity)
 # alpha_obs_model_GLMM2 <- lmer(Shannon ~ dilution_rate + days_after + (1 | chemostat_ID), data = alpha_diversity)
 # alpha_obs_model_GLMM3 <- lmer(Shannon ~ days_after + (1 | chemostat_ID), data = alpha_diversity)
@@ -488,3 +560,238 @@ confint(pairs(emm_dilution, adjust = "tukey"))
 # effectsize::eta_squared(alpha_obs_model_GLMM4, partial = TRUE)
 # emmeans(alpha_obs_model_GLMM14, pairwise~dilution_rate | chemostat_ID)
 # 
+# # By chemostat separately here
+# # Chemostat 1
+# alpha_diversity_MC1 <- filter(alpha_diversity, chemostat_ID == "MC1" )
+# alpha_diversity_MC2 <- filter(alpha_diversity, chemostat_ID == "MC2" )
+# 
+# alpha_obs_MC1_GLMM1 <- lmer(Shannon ~ days_after * dilution_rate + (1 | days_after), data = alpha_diversity_MC1)
+# alpha_obs_MC1_GLMM2 <- lmer(Shannon ~ days_after + dilution_rate + (1 | days_after), data = alpha_diversity_MC1)
+# alpha_obs_MC1_GLMM3 <- lmer(Shannon ~ days_after + (1 | days_after), data = alpha_diversity_MC1)
+# alpha_obs_MC1_GLMM4 <- lmer(Shannon ~ dilution_rate + (1 | days_after), data = alpha_diversity_MC1)
+# alpha_obs_MC1_GLMM5 <- lmer(Shannon ~ 1 + (1 | days_after), data = alpha_diversity_MC1)
+# 
+# alpha_obs_MC1_GLMM1 <- lmer(Shannon ~ dilution_rate + (1 | days_after), data = alpha_diversity_MC1)
+# 
+# 
+# AICc(alpha_obs_MC1_GLM1, alpha_obs_MC1_GLM2,alpha_obs_MC1_GLM3, alpha_obs_MC1_GLM4, alpha_obs_MC1_GLM5)
+# model.sel(alpha_obs_MC1_GLM1, alpha_obs_MC1_GLM2,alpha_obs_MC1_GLM3, alpha_obs_MC1_GLM4, alpha_obs_MC1_GLM5)
+# 
+# # GLM4 (dilution rate) is best model
+# summary(alpha_obs_MC1_GLM4)
+# anova(alpha_obs_MC1_GLM4)
+# r.squaredGLMM(alpha_obs_MC1_GLM4)
+# effectsize::eta_squared(alpha_obs_MC1_GLM4, partial = TRUE)
+# emmeans(alpha_obs_MC1_GLM4, pairwise~dilution_rate)
+# 
+# # Chemostat 2
+# # By chemostat separately here
+# alpha_obs_MC2_GLM1 <- lm(Shannon ~ days_after * dilution_rate, data = alpha_diversity_MC2)
+# alpha_obs_MC2_GLM2 <- lm(Shannon ~ days_after + dilution_rate, data = alpha_diversity_MC2)
+# alpha_obs_MC2_GLM3 <- lm(Shannon ~ days_after, data = alpha_diversity_MC2)
+# alpha_obs_MC2_GLM4 <- lm(Shannon ~ dilution_rate, data = alpha_diversity_MC2)
+# alpha_obs_MC2_GLM5 <- lm(Shannon ~ 1, data = alpha_diversity_MC2)
+# 
+# AICc(alpha_obs_MC2_GLM1, alpha_obs_MC2_GLM2,alpha_obs_MC2_GLM3, alpha_obs_MC2_GLM4, alpha_obs_MC2_GLM5)
+# model.sel(alpha_obs_MC2_GLM1, alpha_obs_MC2_GLM2,alpha_obs_MC2_GLM3, alpha_obs_MC2_GLM4, alpha_obs_MC2_GLM5)
+# 
+# # GLM4 (dilution rate) is best model
+# summary(alpha_obs_MC2_GLM4)
+# anova(alpha_obs_MC2_GLM4)
+# r.squaredGLMM(alpha_obs_MC2_GLM4)
+# effectsize::eta_squared(alpha_obs_MC2_GLM4, partial = TRUE)
+# emmeans(alpha_obs_MC2_GLM4, pairwise~dilution_rate)
+# 
+# ##
+# 
+# 
+# 
+# pdf("Fig. 5 - Combined Example.pdf")
+# dis_boxplot_MCpoints
+# dev.off() 
+# 
+# ## Statistics for dissimilarity----
+# # By chemostat separately
+# diss_MC1 <- filter(dis_box_data_ALL, CHEMOSTAT_ID == "MC1")
+# diss_MC2 <- filter(dis_box_data_ALL, CHEMOSTAT_ID == "MC2")
+# 
+# sim_obs_MC1_GLM1 <- lm(SIM ~ days_after * DILUTION_RATE, data = diss_MC1)
+# sim_obs_MC1_GLM2 <- lm(SIM ~ days_after + DILUTION_RATE, data = diss_MC1)
+# sim_obs_MC1_GLM3 <- lm(SIM ~ days_after, data = diss_MC1)
+# sim_obs_MC1_GLM4 <- lm(SIM ~ DILUTION_RATE, data = diss_MC1)
+# sim_obs_MC1_GLM5 <- lm(SIM ~ 1, data = diss_MC1)
+# 
+# AICc(sim_obs_MC1_GLM1, sim_obs_MC1_GLM2, sim_obs_MC1_GLM3, sim_obs_MC1_GLM4, sim_obs_MC1_GLM5)
+# model.sel(sim_obs_MC1_GLM1, sim_obs_MC1_GLM2, sim_obs_MC1_GLM3, sim_obs_MC1_GLM4, sim_obs_MC1_GLM5)
+# 
+# # GLM4 (dilution rate) is best model
+# summary(sim_obs_MC1_GLM2)
+# anova(sim_obs_MC1_GLM3)
+# r.squaredGLMM(sim_obs_MC1_GLM3)
+# effectsize::eta_squared(sim_obs_MC1_GLM3, partial = TRUE)
+# emmeans(sim_obs_MC1_GLM3, pairwise~days_after)
+# emmeans(sim_obs_MC1_GLM4, pairwise~DILUTION_RATE)
+# 
+# # Panel E - Modeled Data (Beta)
+# #################################################################################
+# #################################################################################
+# # alpha diversity based on modeled data
+# beta_alpha <- read.csv("betaALPHA_forboxplot.csv", header = TRUE)
+# 
+# beta_alpha_boxplot <- ggplot(beta_alpha, aes(x = DILUTION_RATE, y = SHANNON), ) +
+#   geom_boxplot(aes(fill = DILUTION_RATE)) +
+#   # geom_jitter(aes(fill = DILUTION_RATE), width = 0.4, size = 4, pch = 21) +
+#   scale_fill_manual(values=c("#2B5B6C", "#E34F33", "#FFC87E","black")) +
+#   xlab("Dilution Rate") +
+#   ylab("Shannon Diversity") +
+#   pretty.theme() +
+#   ylim(0,7) + 
+#   labs(title = "E. Alpha Diversity - Beta Model")
+# beta_alpha_boxplot
+# 
+# # Statistics
+# leveneTest(SHANNON~DILUTION_RATE, beta_alpha)
+# bartlett.test(SHANNON~DILUTION_RATE, beta_alpha)
+# alpha.b_model_aov <- kruskal.test(SHANNON~DILUTION_RATE, beta_alpha)
+# alpha.b_model_aov
+# 
+# # To make the faceted plots that include uniform data
+# modeled_alpha <- read.csv("modeledALPHA_forboxplot.csv", header = T)
+# 
+# modeled_alpha_byMODEL <- ggplot(modeled_alpha, aes(x = DILUTION_RATE, y = ALPHA), ) +
+#   geom_boxplot(aes(fill = DILUTION_RATE), color = "black", alpha = 0.9) +
+#   # geom_jitter(aes(color = DILUTION_RATE, shape = CHEMOSTAT_ID), width = 0.4, size = 4) +
+#   # scale_color_manual(values=c("#2B5B6C", "#E34F33", "#FFC87E")) +
+#   scale_fill_manual(values=c("#2B5B6C", "#E34F33", "#FFC87E")) +
+#   xlab("Dilution Rate") +
+#   ylab("Shannon Diversity") +
+#   pretty.theme() +
+#   ggtitle("E. Alpha Diversity - Modeled") +
+#   # ylim(0,1) +
+#   facet_wrap(~factor(MODEL, levels=c("Uniform", "Beta"))) + theme(strip.background = element_blank(),
+#                                                                   strip.text.x = element_text(size = 14, colour = "black"))
+# modeled_alpha_byMODEL
+# 
+# # Panel F - Modeled Data (Beta)
+# #################################################################################
+# #################################################################################
+# beta_beta <- read.csv("betaBray_forboxplot_sequential-NEW.csv", header = TRUE)
+# 
+# beta_beta_boxplot <- ggplot(beta_beta, aes(x = DILUTION_RATE, y = SIM), ) +
+#   geom_boxplot(aes(fill = DILUTION_RATE)) +
+#   # geom_jitter(aes(fill = DILUTION_RATE), width = 0.4, size = 4, pch = 21) +
+#   scale_fill_manual(values=c("#2B5B6C", "#E34F33", "#FFC87E","black")) +
+#   xlab("Dilution Rate") +
+#   ylab("Similarity Metric") +
+#   pretty.theme() +
+#   ggtitle("F. Community Stability - Beta Model") +
+#   ylim(0,1)
+# beta_beta_boxplot
+# 
+# # Statistics
+# beta.b_model_aov <- aov(SIM~DILUTION_RATE, beta_beta)
+# summary(beta.b_model_aov)
+# TukeyHSD(beta.b_model_aov, conf.level = 0.95)
+# 
+# # To make faceted plot to include uniform data
+# modeled_beta <- read.csv("modeledBray_forboxplot_sequential-NEW-FINAL.csv", header = T)
+# 
+# modeled_beta_byMODEL <- ggplot(modeled_beta, aes(x = DILUTION_RATE, y = SIM), ) +
+#   geom_boxplot(aes(fill = DILUTION_RATE)) +
+#   # geom_jitter(aes(fill = DILUTION_RATE), width = 0.4, size = 4, pch = 21) +
+#   scale_fill_manual(values=c("#2B5B6C", "#E34F33", "#FFC87E","black")) +
+#   xlab("Dilution Rate") +
+#   ylab("Similarity Metric") +
+#   pretty.theme() +
+#   ggtitle("F. Community Stability - Modeled") +
+#   ylim(0,1) +
+#   facet_wrap(~factor(MODEL, levels=c("Uniform", "Beta"))) + theme(strip.background = element_blank(),
+#                                                                   strip.text.x = element_text(size = 14, colour = "black"))
+# modeled_beta_byMODEL
+# 
+# # Supplementary Model Data (Uniform)
+# #################################################################################
+# #################################################################################
+# uniform_alpha <- read.csv("uniformALPHA_forboxplot.csv", header = TRUE)
+# 
+# uniform_alpha_boxplot <- ggplot(uniform_alpha, aes(x = DILUTION_RATE, y = SHANNON), ) +
+#   geom_boxplot(aes(fill = DILUTION_RATE)) +
+#   # geom_jitter(aes(fill = DILUTION_RATE), width = 0.4, size = 4, pch = 21) +
+#   scale_fill_manual(values=c("#2B5B6C", "#E34F33", "#FFC87E","black")) +
+#   xlab("Dilution Rate") +
+#   ylab("Shannon Diversity") +
+#   pretty.theme() +
+#   ylim(0,7) +
+#   labs(title = "A. Alpha Diversity - Uniform Model")
+# uniform_alpha_boxplot
+# 
+# # Statistics
+# leveneTest(SHANNON~DILUTION_RATE, data = uniform_alpha)
+# bartlett.test(SHANNON~DILUTION_RATE, data = uniform_alpha)
+# alpha_uniform <- aov(SHANNON~DILUTION_RATE, data = uniform_alpha)
+# summary(alpha_uniform)
+# TukeyHSD(alpha_uniform, conf.level = 0.95)
+# HSD.test(alpha_uniform, trt = c("DILUTION_RATE"), console = TRUE)
+# 
+# # Plot (after manipulating the data)
+# uniform_beta <- read.csv("uniformBray_forboxplot_sequential-NEW.csv", header = TRUE)
+# 
+# uniform_beta_boxplot <- ggplot(uniform_beta, aes(x = DILUTION_RATE, y = SIM), ) +
+#   geom_boxplot(aes(fill = DILUTION_RATE)) +
+#   # geom_jitter(aes(fill = DILUTION_RATE), width = 0.4, size = 4, pch = 21) +
+#   scale_fill_manual(values=c("#2B5B6C", "#E34F33", "#FFC87E","black")) +
+#   xlab("Dilution Rate") +
+#   ylab("Similarity Metric") +
+#   pretty.theme() +
+#   ggtitle("B. Community Stability - Uniform Model")
+# uniform_beta_boxplot
+# 
+# # Statistics
+# leveneTest(SIM~DILUTION_RATE, data = uniform_beta)
+# bartlett.test(SIM~DILUTION_RATE, data = uniform_beta) # variances
+# kruskal.test(SIM~DILUTION_RATE, data = uniform_beta)
+# 
+# # Exporting Plots
+# 
+# # Exporting plots as PDFs
+# pdf("Fig.5.pdf", width = 12, height = 15)
+# (bray_plot1 | bray_plot2) /
+#   (alpha_boxp_plot_ALL | dis_boxplot_ALL) /
+#   (beta_alpha_boxplot | beta_beta_boxplot)
+# dev.off()
+# 
+# # Exporting PDFs split by MC
+# pdf("Fig.5_byMC.pdf", width = 12, height = 15)
+# (bray_plot1 | bray_plot2) /
+#   (alpha_boxp_plot_byMC | dis_boxplot_byMC) /
+#   (beta_alpha_boxplot | beta_beta_boxplot)
+# dev.off()
+# 
+# # Exporting PDFs to include uniform  model
+# pdf("Fig.5_FINAL.pdf", width = 12, height = 15)
+# (bray_plot1 | bray_plot2) /
+#   (alpha_boxp_plot_byMC | dis_boxplot_byMC) /
+#   (modeled_alpha_byMODEL | modeled_beta_byMODEL)
+# dev.off()
+# 
+# # Exporting each individually
+# #################################################################################
+# #################################################################################
+# pdf("Fig.5 - Individual.pdf")
+# bray_plot1
+# bray_plot2
+# alpha_boxp_plot_ALL
+# dis_boxplot_ALL
+# beta_alpha_boxplot
+# beta_beta_boxplot
+# dev.off()
+# 
+# pdf("Uniform_Supplemental.pdf")
+# uniform_alpha_boxplot
+# uniform_beta_boxplot
+# dev.off()
+# 
+# pdf("Uniform_Supplemental - combined.pdf", width = 15)
+# uniform_alpha_boxplot + uniform_beta_boxplot
+# dev.off()
+
