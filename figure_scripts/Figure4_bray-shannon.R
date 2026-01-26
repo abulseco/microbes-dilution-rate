@@ -32,6 +32,7 @@ pretty.theme <- function(){
 # Read in phyloseq objects as necessary
 # per_MC1 <- readRDS("phyloseq_objects/phy_taxaFilter_relAbund_noPond_MC1.rds")
 # per_MC2 <- readRDS("phyloseq_objects/phy_taxaFilter_relAbund_noPond_MC2.rds")
+# per_nopond <- readRDS("phyloseq_objects/phy_taxaFilter_relAbund_noPond.rds")
 
 # Bray curtis for MC1 specifically
 BC_distance1 <- phyloseq::distance(per_MC1, "bray")
@@ -40,12 +41,12 @@ plot_scree(bcOrd1)
 bray_plot1 <- plot_ordination(per_MC1, bcOrd1) +
   geom_point(aes(fill = dilution_rate), size = 3, alpha = 1, pch = 21, color = "black") +
   geom_polygon(aes(fill = dilution_rate), alpha = 0.8) +
-  # geom_text_repel(aes(label= total_days_after), 
-  #                 color = "black",
-  #                 # vjust = 0.02, nudge_y = 0.01,
-  #                 direction = "both",
-  #                 size = 4,
-  #                 min.segment.length = Inf) +
+  geom_text_repel(aes(label= total_days_after), 
+                   color = "black",
+                   # vjust = 0.02, nudge_y = 0.01,
+                   direction = "both",
+                   size = 4,
+                   min.segment.length = Inf) +
   scale_fill_manual(values=c("#2B5B6C", "#E34F33", "#FFC87E","black")) +
   scale_color_manual(values=c("#2B5B6C", "#E34F33", "#FFC87E","black")) +
   pretty.theme() +
@@ -61,12 +62,12 @@ plot_scree(bcOrd2)
 bray_plot2 <- plot_ordination(per_MC2, bcOrd2) +
   geom_point(aes(fill = dilution_rate), size = 3, alpha = 1, pch = 21, color = "black") +
   geom_polygon(aes(fill = dilution_rate), alpha = 0.8) +
-  # geom_text_repel(aes(label= total_days_after), 
-  #                 color = "black",
-  #                 # vjust = 0.02, nudge_y = 0.01,
-  #                 direction = "both",
-  #                 size = 4,
-  #                 min.segment.length = Inf) +
+  geom_text_repel(aes(label= total_days_after), 
+                   color = "black",
+                   # vjust = 0.02, nudge_y = 0.01,
+                   direction = "both",
+                   size = 4,
+                   min.segment.length = Inf) +
   scale_fill_manual(values=c("#2B5B6C", "#E34F33", "#FFC87E","black")) +
   scale_color_manual(values=c("#2B5B6C", "#E34F33", "#FFC87E","black")) +
   pretty.theme() +
@@ -125,8 +126,8 @@ head(alpha_modeled)
 
 # This is the correct plot with the two models, A & B
 alpha_model_plot <- ggplot(alpha_modeled, aes(x =dilution_rate, y = shannon), ) +
-  geom_boxplot(aes(fill = dilution_rate), color = "black", alpha = 0.5, width = 0.5) +
-  geom_jitter(aes(color = dilution_rate, shape = model), width = 0.2, size = 3, alpha = 0.9) +
+  geom_boxplot(aes(fill = dilution_rate), color = "black", alpha = 0.9, width = 0.5) +
+  # geom_jitter(aes(color = dilution_rate, shape = model), width = 0.2, size = 3, alpha = 0.9) +
   scale_color_manual(values=c("#2B5B6C", "#E34F33", "#FFC87E")) +
   scale_fill_manual(values=c("#2B5B6C", "#E34F33", "#FFC87E")) +
   xlab("Dilution Rate") +
@@ -138,7 +139,8 @@ alpha_model_plot <- ggplot(alpha_modeled, aes(x =dilution_rate, y = shannon), ) 
   # this changes the order of the facet wrap
   theme(strip.background = element_blank(),
         strip.text.x = element_text(size = 14, colour = "black"),
-        legend.position = "none")
+        legend.position = "none") +
+  ylim(0,7)
 alpha_model_plot
 
 ## Panel F: Beta Diversity (Modeled)----
@@ -166,7 +168,8 @@ beta_model_plot <- ggplot(model_beta_seq, aes(x =dilution_rate, y = sim), ) +
   facet_wrap(.~factor(distribution, levels=c("uniform", "beta"))) +  # this changes the order of the facet wrap
   theme(strip.background = element_blank(),
         strip.text.x = element_text(size = 14, colour = "black"),
-        legend.position = "none")
+        legend.position = "none") +
+  ylim(0,1)
 beta_model_plot
 
 ## Combining plots----
