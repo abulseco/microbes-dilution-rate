@@ -77,16 +77,12 @@ write.table(betaH_B, "intermediate_files/betaH_B.txt") # export to intermediate 
 
 # Beta diversity----
 ## Model A----
-
-# already have our relevant dataframes from above: 
-## uniformdf_A
-## beta_modeldf_A
-
 # OOPS. Probably needed to use the relative abundance for this 
 
-# TEST============
+## Relative Abun***============
 # Probably needed to use relative abundances for this, let's see how much it changes things
-# Redo for uniform A
+# Model A, uniform model: relative abundance
+### Uniform, relabund----
 uniform_modelA_rel <- uniform_modelA_rel[,2:15] # Not sure why the rel abundance has 14 columns?
 
 uniformdf_A_REL <- data.matrix(uniform_modelA_rel) %>%
@@ -98,42 +94,70 @@ uniformBray_A_REL
 uniformBray_A_matrix_REL <- as.matrix(uniformBray_A_REL)
 write.csv(uniformBray_A_matrix_REL, "intermediate_files/uniformBray_A_matrix_REL.csv")
 
+### beta, relabund----
+# Model A, beta model: relative abundance
+beta_modelA_rel <- beta_modelA_rel[,2:15] # 15 columns of data
 
-# beta_model_relA <- beta_modelA_rel[,2:15] # 15 columns of data 
+betadf_A_REL <- data.matrix(beta_modelA_rel) %>%
+  t() %>%
+  as.data.frame()
+
+betaBray_A_REL <- vegdist(betadf_A_REL, method = "bray")
+betaBray_A_REL
+betaBray_A_matrix_REL <- as.matrix(betaBray_A_REL)
+write.csv(betaBray_A_matrix_REL, "intermediate_files/betaBray_A_matrix_REL.csv")
+
+# Below is for absolute abundances and should be ignored for now
+### Uniform distribution model
+# uniformBray_A <- vegdist(uniformdf_A, method = "bray")
+# uniformBray_A
+# uniformBray_A_matrix <- as.matrix(uniformBray_A)
+# write.csv(uniformBray_A_matrix, "intermediate_files/uniformBray_A_matrix.csv")
 # 
-# beta_model_relA_df <- data.matrix(beta_model_relA) %>%
-#   t() %>%
-#   as.data.frame()
-
-### Uniform distribution model----
-uniformBray_A <- vegdist(uniformdf_A, method = "bray")
-uniformBray_A
-uniformBray_A_matrix <- as.matrix(uniformBray_A)
-write.csv(uniformBray_A_matrix, "intermediate_files/uniformBray_A_matrix.csv")
-
-### Beta distribution model----
-betaBray_A <- vegdist(beta_modeldf_A, method = "bray")
-betaBray_A
-betaBray_A_matrix <- as.matrix(betaBray_A)
-write.csv(betaBray_A_matrix, "intermediate_files/betaBray_A_matrix.csv")
+# ### Beta distribution model
+# betaBray_A <- vegdist(beta_modeldf_A, method = "bray")
+# betaBray_A
+# betaBray_A_matrix <- as.matrix(betaBray_A)
+# write.csv(betaBray_A_matrix, "intermediate_files/betaBray_A_matrix.csv")
 
 ## Model B----
+### Uniform, relabund----
+uniform_modelB_rel <- uniform_modelB_rel[,2:15] 
 
-# already have our relevant dataframes from above:
-  ## uniformdf_B
-  ## beta_modeldf_B
+uniformdf_B_REL <- data.matrix(uniform_modelB_rel) %>%
+  t() %>%
+  as.data.frame()
 
-### Uniform distribution model----
-uniformBray_B <- vegdist(uniformdf_B, method = "bray")
-uniformBray_B
-uniformBray_B_matrix <- as.matrix(uniformBray_B)
-write.csv(uniformBray_B_matrix, "intermediate_files/uniformBray_B_matrix.csv")
+uniformBray_B_REL <- vegdist(uniformdf_B_REL, method = "bray")
+uniformBray_B_REL
+uniformBray_B_matrix_REL <- as.matrix(uniformBray_B_REL)
+write.csv(uniformBray_B_matrix_REL, "intermediate_files/uniformBray_B_matrix_REL.csv")
 
-### Beta distribution model----
-betaBray_B <- vegdist(beta_modeldf_B, method = "bray")
-betaBray_B
-betaBray_B_matrix <- as.matrix(betaBray_B)
-write.csv(betaBray_B_matrix, "intermediate_files/betaBray_B_matrix.csv")
+### beta, relabund----
+# Model A, beta model: relative abundance
+beta_modelB_rel <- beta_modelB_rel[,2:15] # 15 columns of data
+
+betadf_B_REL <- data.matrix(beta_modelB_rel) %>%
+  t() %>%
+  as.data.frame()
+
+betaBray_B_REL <- vegdist(betadf_B_REL, method = "bray")
+betaBray_B_REL
+betaBray_B_matrix_REL <- as.matrix(betaBray_B_REL)
+write.csv(betaBray_B_matrix_REL, "intermediate_files/betaBray_B_matrix_REL.csv")
+
+# # Below is for absolute abundances and should be ignored for no
+# ### Uniform distribution model
+# uniformBray_B <- vegdist(uniformdf_B, method = "bray")
+# uniformBray_B
+# uniformBray_B_matrix <- as.matrix(uniformBray_B)
+# write.csv(uniformBray_B_matrix, "intermediate_files/uniformBray_B_matrix.csv")
+# 
+# ### Beta distribution model
+# betaBray_B <- vegdist(beta_modeldf_B, method = "bray")
+# betaBray_B
+# betaBray_B_matrix <- as.matrix(betaBray_B)
+# write.csv(betaBray_B_matrix, "intermediate_files/betaBray_B_matrix.csv")
 
 
 
