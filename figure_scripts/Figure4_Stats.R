@@ -2,7 +2,7 @@
 
 # SET UP ENVIRONMENT----
 # Load necessary libraries
-library(dplyr); library(emmeans); library(multcompView); library(ggplot2)
+library(dplyr); library(emmeans); library(multcompView); library(ggplot2); library(vegan)
 
 # Shannon diversity - observed=============================
 # Read in data
@@ -72,6 +72,53 @@ emm_dilution
 pairs(emm_dilution, adjust = "tukey")
 confint(pairs(emm_dilution, adjust = "tukey"))
 
+# Betadispersion - observed==============================
+## Calculate betadispersion----
+# Calculating across both chemostats (not separately like the PCoA)
+BC_distance <- phyloseq::distance(per_nopond, "bray")
+
+# metadata in the same order as samples in per_MC1
+meta <- data.frame(sample_data(per_nopond)) %>%
+  tibble::rownames_to_column("SampleID")
+
+# betadisper by dilution rate
+bd <- betadisper(BC_distance, group = meta$dilution_rate)
+bd_df <- data.frame(
+  SampleID = meta$SampleID,
+  betadisp = bd$distances
+) # create a dataframe
+
+# Add to metadata
+bd_df <- meta %>%
+  left_join(bd_df, by = "SampleID")
+
+bd_df
+head(bd_df)
+str(bd_df)
+
+# create a "day within phase" column that restarts with each dilution rate
+bd_df <- bd_df %>%
+  arrange(chemostat_ID, days_after)
+
+bd_df <- bd_df %>%
+  group_by(chemostat_ID, dilution_rate) %>%
+  mutate(
+    day_within_phase = days_after - min(days_after)
+  ) %>%
+  ungroup()
+
+bd_df %>%
+  select(SampleID, chemostat_ID, dilution_rate, days_after, day_within_phase) %>%
+  arrange(chemostat_ID, days_after)
+
+betadisp_model_GLMM1 <- lmer(betadisp ~ dilution_rate + (1 | chemostat_ID), data = bd_df, REML = FALSE)
+betadisp_model_GLMM2 <- lmer(betadisp ~ dilution_rate * day_within_phase + (1 | chemostat_ID), data = bd_df, REML = FALSE)
+betadisp_model_GLMM3 <- lmer(betadisp ~ dilution_rate + day_within_phase + (1 | chemostat_ID), data = bd_df, REML = FALSE)
+betadisp_model_null <- lmer(betadisp ~ 1 + (1 | chemostat_ID), data = bd_df, REML = FALSE)
+
+AICc(betadisp_model_GLMM1, betadisp_model_GLMM2, betadisp_model_GLMM3, betadisp_model_null)
+model.sel(betadisp_model_GLMM1, betadisp_model_GLMM2, betadisp_model_GLMM3, betadisp_model_null)
+summary(betadisp_model_null) # Report that null model was best supported
 
 # Shannon diversity - modeled================================
 # Read in data
